@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏆 竞赛排行榜</title>
+    <title>🏆 竞赛排行榜 · 分组排名</title>
     <style>
         :root {
             --bg: #0f0f1a;
@@ -19,6 +19,8 @@
             --success-bg: #1a3a2a;
             --danger: #e0556a;
             --danger-bg: #3a1a22;
+            --pending: #8899aa;
+            --pending-bg: #1e2730;
             --text: #e0e0e8;
             --text-secondary: #a0a0b8;
             --border: #333358;
@@ -52,7 +54,7 @@
 
         .container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px;
             background: var(--surface);
             border-radius: 20px;
             padding: 30px 28px;
@@ -196,6 +198,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            user-select: none;
         }
         .btn:active {
             transform: scale(0.96);
@@ -245,7 +248,6 @@
             padding: 3px 8px;
             font-size: 0.7rem;
             border-radius: 3px;
-            letter-spacing: 0;
         }
         .divider-dot {
             color: var(--border);
@@ -254,7 +256,7 @@
             user-select: none;
         }
 
-        /* 统计条 */
+        /* 全局统计条 */
         .stats-bar {
             display: flex;
             flex-wrap: wrap;
@@ -291,21 +293,87 @@
             background: var(--danger);
         }
         .stat-dot.pending-dot {
-            background: #888;
+            background: var(--pending);
         }
 
-        /* 表格容器 */
+        /* 分组排行榜区域 */
+        .groups-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .group-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+        .group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .group-header .group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.4px;
+        }
+        .group-header .group-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        .badge-danger {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        .badge-pending {
+            background: var(--pending-bg);
+            color: var(--pending);
+            border: 1px solid var(--pending);
+        }
+        .group-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+        .group-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .group-stats .stat-val {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* 表格容器 - 每个组内 */
         .table-wrapper {
             overflow-x: auto;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            max-height: 65vh;
+            max-height: 45vh;
             overflow-y: auto;
             scroll-behavior: smooth;
         }
         .table-wrapper::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
         .table-wrapper::-webkit-scrollbar-track {
             background: transparent;
@@ -322,22 +390,22 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 700px;
+            min-width: 650px;
             table-layout: auto;
         }
         table thead {
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 5;
         }
         table thead th {
             background: #1e1e3a;
-            padding: 13px 12px;
+            padding: 10px 10px;
             text-align: center;
             font-weight: 700;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             text-transform: uppercase;
-            letter-spacing: 0.6px;
+            letter-spacing: 0.5px;
             color: var(--text-secondary);
             border-bottom: 2px solid var(--border);
             white-space: nowrap;
@@ -373,7 +441,8 @@
             text-align: center;
             vertical-align: middle;
         }
-        /* 排名列 */
+
+        /* 排名样式 */
         .rank-cell {
             font-weight: 700;
             font-size: 1rem;
@@ -383,21 +452,21 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             font-weight: 800;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         .rank-gold {
             background: linear-gradient(135deg, #f0c060, #d4a030);
             color: #3d2200;
-            box-shadow: 0 0 16px rgba(240, 192, 96, 0.5);
+            box-shadow: 0 0 12px rgba(240, 192, 96, 0.5);
         }
         .rank-silver {
             background: linear-gradient(135deg, #d8dce3, #a8b0ba);
             color: #2a2a30;
-            box-shadow: 0 0 12px rgba(188, 198, 208, 0.4);
+            box-shadow: 0 0 10px rgba(188, 198, 208, 0.4);
         }
         .rank-bronze {
             background: linear-gradient(135deg, #e0b890, #b88050);
@@ -406,14 +475,14 @@
         }
         .rank-normal {
             color: var(--text-secondary);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         .rank-na {
             color: #555;
             font-size: 0.8rem;
         }
 
-        /* 输入框样式 */
+        /* 输入框 */
         input.table-input {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -462,13 +531,12 @@
             letter-spacing: 0.5px;
         }
         input.name-input {
-            max-width: 150px;
+            max-width: 140px;
             min-width: 100px;
             text-align: left;
             padding-left: 12px;
         }
 
-        /* 删除按钮 */
         .delete-btn {
             background: transparent;
             border: none;
@@ -485,7 +553,7 @@
             background: rgba(224, 85, 106, 0.15);
         }
 
-        /* Toast 提示 */
+        /* Toast */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -542,171 +610,97 @@
         @media (max-width: 768px) {
             .container {
                 padding: 16px 12px;
-                border-radius: 14px;
-            }
-            .header h1 {
-                font-size: 1.3rem;
             }
             .toolbar {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 8px;
             }
             .toolbar input[type="text"] {
                 max-width: 100%;
-                min-width: auto;
             }
-            .btn {
-                justify-content: center;
-            }
-            table {
-                min-width: 600px;
+            .group-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
             input.table-input {
                 max-width: 90px;
                 font-size: 0.8rem;
-                padding: 5px 6px;
-            }
-            input.status-input {
-                max-width: 85px;
-                min-width: 70px;
-            }
-            input.score-input {
-                max-width: 70px;
-                min-width: 55px;
-            }
-            input.name-input {
-                max-width: 100px;
-                min-width: 70px;
-            }
-            .stats-bar {
-                font-size: 0.75rem;
-                gap: 8px;
             }
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <!-- 头部 -->
         <div class="header">
             <div class="title-group">
                 <span class="icon-trophy">🏆</span>
                 <h1>竞赛排行榜</h1>
             </div>
-            <div class="badge">
-                <span class="dot"></span> 数据自动保存中
-            </div>
+            <div class="badge"><span class="dot"></span> 分组排名·自动保存</div>
         </div>
 
         <!-- 工具栏 -->
-        <div class="toolbar" id="toolbar">
-            <span class="section-label">📋 导入名单</span>
-            <input type="text" id="importTextInput"
-            placeholder="粘贴名单（每行一个姓名，或用逗号分隔）"
-            title="粘贴参赛者姓名，每行一个或逗号分隔">
-            <button class="btn btn-primary" id="btnImport" title="导入并替换当前名单">
-                📥 导入名单
-            </button>
-            <button class="btn btn-outline" id="btnAppendImport" title="追加到现有名单末尾">
-                ➕ 追加导入
-            </button>
+        <div class="toolbar">
+            <span class="section-label">📋 名单</span>
+            <input type="text" id="importTextInput" placeholder="粘贴名单（每行一个姓名，或逗号分隔）">
+            <button class="btn btn-primary" id="btnImport">📥 导入</button>
+            <button class="btn btn-outline" id="btnAppendImport">➕ 追加</button>
             <span class="divider-dot">•</span>
-            <label class="btn btn-outline" for="fileInput" title="从TXT或CSV文件导入名单">
-                📁 从文件导入
-            </label>
+            <label class="btn btn-outline" for="fileInput">📁 文件导入</label>
             <input type="file" id="fileInput" accept=".txt,.csv">
             <span class="divider-dot">•</span>
-            <button class="btn btn-success" id="btnAddOne" title="手动添加一个参赛者">
-                ＋ 添加选手
-            </button>
-            <button class="btn btn-danger" id="btnClearAll" title="清空所有数据（不可恢复）">
-                🗑 清空全部
-            </button>
-            <button class="btn btn-outline btn-sm" id="btnExport" title="导出数据为JSON备份文件">
-                💾 导出备份
-            </button>
-            <button class="btn btn-outline btn-sm" id="btnImportBackup" title="从JSON备份文件恢复数据"
-            onclick="document.getElementById('backupFileInput').click()">
-                📤 恢复备份
-            </button>
+            <button class="btn btn-success" id="btnAddOne">＋ 添加选手</button>
+            <button class="btn btn-danger" id="btnClearAll">🗑 清空</button>
+            <button class="btn btn-outline btn-sm" id="btnExport">💾 导出备份</button>
+            <button class="btn btn-outline btn-sm" id="btnImportBackup" onclick="document.getElementById('backupFileInput').click()">📤 恢复备份</button>
             <input type="file" id="backupFileInput" accept=".json" style="display:none;">
         </div>
 
-        <!-- 统计条 -->
+        <!-- 全局统计 -->
         <div class="stats-bar" id="statsBar">
             <span class="stat-item">📊 总人数：<span class="stat-value" id="statTotal">0</span></span>
             <span class="stat-item"><span class="stat-dot success-dot"></span> 撤离成功：<span class="stat-value" id="statSuccess">0</span></span>
             <span class="stat-item"><span class="stat-dot danger-dot"></span> 撤离失败：<span class="stat-value" id="statFail">0</span></span>
             <span class="stat-item"><span class="stat-dot pending-dot"></span> 未标记：<span class="stat-value" id="statPending">0</span></span>
-            <span class="stat-item">📈 已填成绩：<span class="stat-value" id="statScored">0</span></span>
-            <span class="stat-item">⭐ 最高分：<span class="stat-value" id="statBest">-</span></span>
+            <span class="stat-item">⭐ 全局最高分：<span class="stat-value" id="statBest">-</span></span>
         </div>
 
-        <!-- 表格 -->
-        <div class="table-wrapper" id="tableWrapper">
-            <table id="rankingTable">
-                <thead>
-                    <tr>
-                        <th style="width:65px;">排名</th>
-                        <th style="width:130px;">👤 姓名</th>
-                        <th style="width:130px;">🚁 撤离状态</th>
-                        <th style="width:100px;">🎯 成绩</th>
-                        <th style="width:50px;">操作</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- 动态渲染 -->
-                </tbody>
-            </table>
+        <!-- 分组排行榜容器 -->
+        <div class="groups-container" id="groupsContainer">
+            <!-- 动态生成三个分组卡片 -->
         </div>
     </div>
 
-    <!-- Toast 容器 -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
         (function() {
-            // ==================== 数据管理 ====================
-            const STORAGE_KEY = 'ranking_board_data_v2';
+            const STORAGE_KEY = 'ranking_board_data_v2_grouped';
 
-            /**
-             * 数据结构：
-             * {
-             *   id: string (唯一标识),
-             *   name: string (参赛者姓名),
-             *   status: string ('撤离成功' | '撤离失败' | ''),
-             *   score: number | null
-             * }
-             */
             let participants = [];
 
-            /** 加载数据 */
             function loadData() {
                 try {
                     const raw = localStorage.getItem(STORAGE_KEY);
                     if (raw) {
                         const data = JSON.parse(raw);
                         if (Array.isArray(data)) {
-                            // 数据迁移/校验
                             participants = data.map(item => ({
                                 id: item.id || generateId(),
                                 name: String(item.name || '').trim(),
                                 status: ['撤离成功', '撤离失败'].includes(item.status) ? item.status : '',
-                                score: (item.score !== null && item.score !== undefined && !isNaN(
-                                    Number(item.score))) ? Number(item.score) : null,
+                                score: (item.score !== null && item.score !== undefined && !isNaN(Number(item
+                                    .score))) ? Number(item.score) : null,
                             }));
                             return;
                         }
                     }
                 } catch (e) {
-                    console.warn('数据加载失败，将使用空数据', e);
+                    console.warn('数据加载失败', e);
                 }
                 participants = [];
             }
 
-            /** 保存数据 */
             function saveData() {
                 try {
                     const dataToSave = participants.map(p => ({
@@ -717,76 +711,75 @@
                     }));
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
                 } catch (e) {
-                    showToast('⚠️ 自动保存失败，请检查浏览器存储空间', 'warning');
-                    console.error('保存失败', e);
+                    showToast('⚠️ 自动保存失败', 'warning');
                 }
             }
 
-            /** 生成唯一ID */
             function generateId() {
                 return 'p_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
             }
 
-            // ==================== 排序与排名 ====================
-            function getSortedParticipants() {
-                const sorted = [...participants].sort((a, b) => {
-                    // 都有成绩：按成绩降序
-                    const scoreA = a.score;
-                    const scoreB = b.score;
-                    const hasA = scoreA !== null && scoreA !== undefined && !isNaN(scoreA);
-                    const hasB = scoreB !== null && scoreB !== undefined && !isNaN(scoreB);
-
-                    if (hasA && hasB) {
-                        if (scoreB !== scoreA) return scoreB - scoreA;
-                        // 成绩相同：撤离成功优先
-                        const statusOrder = { '撤离成功': 0, '': 1, '撤离失败': 2 };
-                        const orderA = statusOrder[a.status] ?? 1;
-                        const orderB = statusOrder[b.status] ?? 1;
-                        if (orderA !== orderB) return orderA - orderB;
-                        // 按姓名
-                        return a.name.localeCompare(b.name, 'zh-CN');
-                    }
-                    if (hasA && !hasB) return -1;
-                    if (!hasA && hasB) return 1;
-                    // 都没成绩：按姓名
-                    return a.name.localeCompare(b.name, 'zh-CN');
+            // 分组并各自排序
+            function getGroupedData() {
+                const success = [];
+                const fail = [];
+                const pending = [];
+                participants.forEach(p => {
+                    if (p.status === '撤离成功') success.push(p);
+                    else if (p.status === '撤离失败') fail.push(p);
+                    else pending.push(p);
                 });
-                return sorted;
+                const sortGroup = (arr) => {
+                    return [...arr].sort((a, b) => {
+                        const aHas = a.score !== null && !isNaN(a.score);
+                        const bHas = b.score !== null && !isNaN(b.score);
+                        if (aHas && bHas) {
+                            if (b.score !== a.score) return b.score - a.score;
+                            return a.name.localeCompare(b.name, 'zh-CN');
+                        }
+                        if (aHas && !bHas) return -1;
+                        if (!aHas && bHas) return 1;
+                        return a.name.localeCompare(b.name, 'zh-CN');
+                    });
+                };
+                return {
+                    success: sortGroup(success),
+                    fail: sortGroup(fail),
+                    pending: sortGroup(pending),
+                };
             }
 
-            function computeRanks(sortedList) {
-                const ranks = [];
+            function computeGroupRanks(sortedList) {
+                const ranked = [];
                 let currentRank = 1;
                 for (let i = 0; i < sortedList.length; i++) {
                     const p = sortedList[i];
-                    const hasScore = p.score !== null && p.score !== undefined && !isNaN(p.score);
+                    const hasScore = p.score !== null && !isNaN(p.score);
                     if (!hasScore) {
-                        ranks.push({ ...p, rank: null, rankDisplay: '-' });
+                        ranked.push({ ...p, rank: null, rankDisplay: '-' });
                         continue;
                     }
                     if (i === 0) {
-                        ranks.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
+                        ranked.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
                         continue;
                     }
                     const prev = sortedList[i - 1];
-                    const prevHasScore = prev.score !== null && prev.score !== undefined && !isNaN(prev.score);
+                    const prevHasScore = prev.score !== null && !isNaN(prev.score);
                     if (!prevHasScore) {
                         currentRank = i + 1;
-                        ranks.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
+                        ranked.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
                         continue;
                     }
-                    if (p.score === prev.score && p.status === prev.status) {
-                        // 并列
-                        ranks.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
+                    if (p.score === prev.score) {
+                        ranked.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
                     } else {
                         currentRank = i + 1;
-                        ranks.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
+                        ranked.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
                     }
                 }
-                return ranks;
+                return ranked;
             }
 
-            // ==================== 渲染 ====================
             function getRankClass(rank) {
                 if (rank === 1) return 'rank-gold';
                 if (rank === 2) return 'rank-silver';
@@ -801,116 +794,103 @@
                 return '';
             }
 
-            function renderTable() {
-                const sorted = getSortedParticipants();
-                const ranked = computeRanks(sorted);
-                const tbody = document.getElementById('tableBody');
+            function escapeAttr(str) {
+                return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g,
+                    '&gt;');
+            }
 
-                let html = '';
-                ranked.forEach((p) => {
+            function renderGroupCard(groupName, groupData, groupClass, badgeClass, icon) {
+                if (groupData.length === 0) {
+                    return `
+                    <div class="group-card">
+                        <div class="group-header">
+                            <div class="group-title">${icon} ${groupName} <span class="group-badge ${badgeClass}">0人</span></div>
+                        </div>
+                        <div style="padding:20px;text-align:center;color:#555;">暂无选手</div>
+                    </div>`;
+                }
+                const ranked = computeGroupRanks(groupData);
+                const groupBest = ranked.filter(p => p.score !== null && !isNaN(p.score)).reduce((max, p) => Math.max(max, p
+                    .score), -Infinity);
+                const bestDisplay = groupBest === -Infinity ? '-' : (Number.isInteger(groupBest) ? String(groupBest) : String(
+                    Math.round(groupBest * 100) / 100));
+                let rowsHtml = '';
+                ranked.forEach(p => {
                     const rankClass = p.rank ? getRankClass(p.rank) : 'rank-na';
                     const rowClass = p.rank ? getRowClass(p.rank) : '';
                     const medalHtml = p.rank && p.rank <= 3 ?
                         `<span class="rank-medal ${rankClass}">${['🥇','🥈','🥉'][p.rank-1]}</span>` :
                         (p.rank ? `<span class="rank-normal">#${p.rank}</span>` :
                             `<span class="rank-na">-</span>`);
-
-                    const statusClass = p.status === '撤离成功' ? 'status-success' :
-                        p.status === '撤离失败' ? 'status-danger' : '';
+                    const statusClass = p.status === '撤离成功' ? 'status-success' : p.status === '撤离失败' ?
+                        'status-danger' : '';
                     const statusValue = p.status || '';
-
-                    const scoreValue = (p.score !== null && p.score !== undefined && !isNaN(p.score)) ? p
-                        .score : '';
-
-                    html += `
+                    const scoreValue = (p.score !== null && !isNaN(p.score)) ? p.score : '';
+                    rowsHtml += `
                     <tr class="${rowClass}" data-id="${p.id}">
                         <td class="rank-cell">${medalHtml}</td>
-                        <td>
-                            <input type="text" class="table-input name-input name-field"
-                                   value="${escapeAttr(p.name)}"
-                                   data-id="${p.id}"
-                                   placeholder="姓名"
-                                   autocomplete="off">
-                        </td>
-                        <td>
-                            <input type="text" class="table-input status-input status-field ${statusClass}"
-                                   value="${escapeAttr(statusValue)}"
-                                   data-id="${p.id}"
-                                   placeholder="输入1或2"
-                                   autocomplete="off"
-                                   title="输入 1 = 撤离成功，输入 2 = 撤离失败">
-                        </td>
-                        <td>
-                            <input type="number" class="table-input score-input score-field"
-                                   value="${scoreValue}"
-                                   data-id="${p.id}"
-                                   placeholder="分数"
-                                   step="any"
-                                   autocomplete="off">
-                        </td>
-                        <td>
-                            <button class="delete-btn" data-id="${p.id}" title="删除此选手">✕</button>
-                        </td>
+                        <td><input type="text" class="table-input name-input name-field" value="${escapeAttr(p.name)}" data-id="${p.id}" placeholder="姓名" autocomplete="off"></td>
+                        <td><input type="text" class="table-input status-input status-field ${statusClass}" value="${escapeAttr(statusValue)}" data-id="${p.id}" placeholder="1或2" title="输入1=撤离成功，2=撤离失败" autocomplete="off"></td>
+                        <td><input type="number" class="table-input score-input score-field" value="${scoreValue}" data-id="${p.id}" placeholder="分数" step="any" autocomplete="off"></td>
+                        <td><button class="delete-btn" data-id="${p.id}" title="删除">✕</button></td>
                     </tr>`;
                 });
 
-                if (ranked.length === 0) {
-                    html = `
-                    <tr>
-                        <td colspan="5" style="padding:40px;color:#555;font-size:1rem;">
-                            📭 暂无参赛者，请导入名单或手动添加选手
-                        </td>
-                    </tr>`;
-                }
+                return `
+                <div class="group-card">
+                    <div class="group-header">
+                        <div class="group-title">${icon} ${groupName} <span class="group-badge ${badgeClass}">${groupData.length}人</span></div>
+                        <div class="group-stats">
+                            <span>🏅 组内最高：<span class="stat-val">${bestDisplay}</span></span>
+                            <span>📊 已填成绩：<span class="stat-val">${ranked.filter(p=>p.score!==null && !isNaN(p.score)).length}</span></span>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th style="width:65px;">排名</th><th style="width:130px;">👤 姓名</th><th style="width:130px;">🚁 撤离状态</th><th style="width:100px;">🎯 成绩</th><th style="width:50px;">操作</th></tr></thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+            }
 
-                tbody.innerHTML = html;
-                updateStats(ranked);
+            function renderAllGroups() {
+                const grouped = getGroupedData();
+                const html = `
+                    ${renderGroupCard('撤离成功', grouped.success, 'group-success', 'badge-success', '✅')}
+                    ${renderGroupCard('撤离失败', grouped.fail, 'group-danger', 'badge-danger', '❌')}
+                    ${renderGroupCard('未标记', grouped.pending, 'group-pending', 'badge-pending', '❓')}
+                `;
+                document.getElementById('groupsContainer').innerHTML = html;
+                updateGlobalStats(grouped);
                 bindTableEvents();
             }
 
-            function escapeAttr(str) {
-                return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g,
-                    '&gt;');
-            }
-
-            function updateStats(ranked) {
-                const total = ranked.length;
-                const successCount = ranked.filter(p => p.status === '撤离成功').length;
-                const failCount = ranked.filter(p => p.status === '撤离失败').length;
-                const pendingCount = total - successCount - failCount;
-                const scoredCount = ranked.filter(p => p.score !== null && p.score !== undefined && !isNaN(p.score))
-                    .length;
-                const scoredList = ranked.filter(p => p.score !== null && p.score !== undefined && !isNaN(p.score));
-                let bestScore = '-';
-                if (scoredList.length > 0) {
-                    bestScore = Math.max(...scoredList.map(p => p.score));
-                    // 保留合理小数位
-                    if (Number.isInteger(bestScore)) {
-                        bestScore = String(bestScore);
-                    } else {
-                        bestScore = String(Math.round(bestScore * 100) / 100);
-                    }
+            function updateGlobalStats(grouped) {
+                const total = participants.length;
+                const successCount = grouped.success.length;
+                const failCount = grouped.fail.length;
+                const pendingCount = grouped.pending.length;
+                const allScored = participants.filter(p => p.score !== null && !isNaN(p.score));
+                let globalBest = '-';
+                if (allScored.length > 0) {
+                    const maxVal = Math.max(...allScored.map(p => p.score));
+                    globalBest = Number.isInteger(maxVal) ? String(maxVal) : String(Math.round(maxVal * 100) / 100);
                 }
-
                 document.getElementById('statTotal').textContent = total;
                 document.getElementById('statSuccess').textContent = successCount;
                 document.getElementById('statFail').textContent = failCount;
                 document.getElementById('statPending').textContent = pendingCount;
-                document.getElementById('statScored').textContent = scoredCount;
-                document.getElementById('statBest').textContent = bestScore;
+                document.getElementById('statBest').textContent = globalBest;
             }
 
-            // ==================== 事件绑定 ====================
             function bindTableEvents() {
-                // 姓名输入
                 document.querySelectorAll('.name-field').forEach(input => {
                     input.addEventListener('input', function() {
                         const id = this.getAttribute('data-id');
                         const p = participants.find(x => x.id === id);
-                        if (p) {
-                            p.name = this.value.trim();
-                            saveData();
-                        }
+                        if (p) { p.name = this.value.trim();
+                            saveData(); }
                     });
                     input.addEventListener('blur', function() {
                         const id = this.getAttribute('data-id');
@@ -923,34 +903,30 @@
                     });
                 });
 
-                // 撤离状态输入 - 智能识别1和2
                 document.querySelectorAll('.status-field').forEach(input => {
                     input.addEventListener('input', function() {
                         const id = this.getAttribute('data-id');
                         const p = participants.find(x => x.id === id);
                         if (!p) return;
-
-                        const rawValue = this.value;
-                        // 检测是否恰好输入了1或2
-                        if (rawValue === '1') {
+                        const raw = this.value;
+                        if (raw === '1') {
                             this.value = '撤离成功';
                             p.status = '撤离成功';
-                            updateStatusInputStyle(this);
+                            updateStatusStyle(this);
                             saveData();
                             refreshDisplay();
                             return;
                         }
-                        if (rawValue === '2') {
+                        if (raw === '2') {
                             this.value = '撤离失败';
                             p.status = '撤离失败';
-                            updateStatusInputStyle(this);
+                            updateStatusStyle(this);
                             saveData();
                             refreshDisplay();
                             return;
                         }
-                        // 其他情况直接保存
-                        p.status = rawValue.trim();
-                        updateStatusInputStyle(this);
+                        p.status = raw.trim();
+                        updateStatusStyle(this);
                         saveData();
                     });
                     input.addEventListener('blur', function() {
@@ -958,7 +934,6 @@
                         const p = participants.find(x => x.id === id);
                         if (!p) return;
                         const trimmed = this.value.trim();
-                        // 再次检查blur时的值
                         if (trimmed === '1') {
                             this.value = '撤离成功';
                             p.status = '撤离成功';
@@ -968,24 +943,21 @@
                         } else {
                             p.status = trimmed;
                         }
-                        updateStatusInputStyle(this);
+                        updateStatusStyle(this);
                         saveData();
                         refreshDisplay();
                     });
-                    // 初始样式
-                    updateStatusInputStyle(input);
+                    updateStatusStyle(input);
                 });
 
-                // 成绩输入
                 document.querySelectorAll('.score-field').forEach(input => {
                     input.addEventListener('input', function() {
                         const id = this.getAttribute('data-id');
                         const p = participants.find(x => x.id === id);
                         if (!p) return;
                         const val = this.value.trim();
-                        if (val === '' || val === '-') {
-                            p.score = null;
-                        } else {
+                        if (val === '' || val === '-') p.score = null;
+                        else {
                             const num = parseFloat(val);
                             p.score = isNaN(num) ? null : num;
                         }
@@ -996,140 +968,94 @@
                         const p = participants.find(x => x.id === id);
                         if (!p) return;
                         const val = this.value.trim();
-                        if (val === '' || val === '-') {
-                            p.score = null;
-                            this.value = '';
-                        } else {
+                        if (val === '' || val === '-') { p.score = null;
+                            this.value = ''; } else {
                             const num = parseFloat(val);
-                            if (isNaN(num)) {
-                                p.score = null;
-                                this.value = '';
-                            } else {
-                                p.score = num;
-                                this.value = String(num);
-                            }
+                            if (isNaN(num)) { p.score = null;
+                                this.value = ''; } else { p.score = num;
+                                this.value = String(num); }
                         }
                         saveData();
                         refreshDisplay();
                     });
                 });
 
-                // 删除按钮
                 document.querySelectorAll('.delete-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const id = this.getAttribute('data-id');
                         const p = participants.find(x => x.id === id);
-                        const name = p ? p.name : '未知';
-                        if (confirm(`确定要删除「${name}」吗？此操作不可撤销。`)) {
+                        if (confirm(`确定删除「${p?.name || '未知'}」？`)) {
                             participants = participants.filter(x => x.id !== id);
                             saveData();
                             refreshDisplay();
-                            showToast(`已删除「${name}」`, 'info');
+                            showToast('已删除', 'info');
                         }
                     });
                 });
             }
 
-            function updateStatusInputStyle(input) {
+            function updateStatusStyle(input) {
                 const val = input.value.trim();
                 input.classList.remove('status-success', 'status-danger');
-                if (val === '撤离成功') {
-                    input.classList.add('status-success');
-                } else if (val === '撤离失败') {
-                    input.classList.add('status-danger');
-                }
+                if (val === '撤离成功') input.classList.add('status-success');
+                else if (val === '撤离失败') input.classList.add('status-danger');
             }
 
             function refreshDisplay() {
-                // 保存当前焦点元素信息
                 const activeEl = document.activeElement;
                 const activeId = activeEl ? activeEl.getAttribute('data-id') : null;
                 const activeClass = activeEl ? activeEl.className : '';
-
-                renderTable();
-
-                // 尝试恢复焦点
+                renderAllGroups();
                 if (activeId) {
                     setTimeout(() => {
                         const target = document.querySelector(`[data-id="${activeId}"].${activeClass.split(' ').join('.')}`);
                         if (target && target.tagName === 'INPUT') {
                             target.focus();
-                            // 将光标移到末尾
                             const len = target.value.length;
                             target.setSelectionRange(len, len);
                         }
-                    }, 50);
+                    }, 60);
                 }
             }
 
-            // ==================== 导入/导出 ====================
             function parseNameList(text) {
-                // 先尝试按换行分割
                 let lines = text.split(/[\n\r]+/).map(s => s.trim()).filter(s => s.length > 0);
-                // 如果只有一行且包含逗号，尝试按逗号分割
-                if (lines.length <= 1 && text.includes(',')) {
-                    lines = text.split(/[,，]+/).map(s => s.trim()).filter(s => s.length > 0);
-                }
-                // 也支持中文逗号、顿号、分号、空格等分隔
-                if (lines.length <= 1 && /[，、；;｜|\t]/.test(text)) {
-                    lines = text.split(/[，、；;｜|\t]+/).map(s => s.trim()).filter(s => s.length > 0);
-                }
+                if (lines.length <= 1 && text.includes(',')) lines = text.split(/[,，]+/).map(s => s.trim()).filter(s => s
+                    .length > 0);
+                if (lines.length <= 1 && /[，、；;｜|\t]/.test(text)) lines = text.split(/[，、；;｜|\t]+/).map(s => s.trim())
+                    .filter(s => s.length > 0);
                 return lines;
             }
 
             function importNames(names, replace = true) {
-                if (names.length === 0) {
-                    showToast('⚠️ 未识别到有效姓名，请检查输入格式', 'warning');
-                    return;
-                }
+                if (names.length === 0) { showToast('未识别到有效姓名', 'warning'); return; }
                 if (replace) {
-                    participants = names.map(name => ({
-                        id: generateId(),
-                        name: name,
-                        status: '',
-                        score: null,
-                    }));
-                    showToast(`✅ 已导入 ${names.length} 名参赛者（替换原有名单）`, 'success');
+                    participants = names.map(name => ({ id: generateId(), name, status: '', score: null }));
                 } else {
-                    const newOnes = names.map(name => ({
-                        id: generateId(),
-                        name: name,
-                        status: '',
-                        score: null,
-                    }));
-                    participants = [...participants, ...newOnes];
-                    showToast(`✅ 已追加导入 ${names.length} 名参赛者`, 'success');
+                    participants = [...participants, ...names.map(name => ({ id: generateId(), name, status: '',
+                        score: null }))];
                 }
                 saveData();
                 refreshDisplay();
+                showToast(`✅ 已${replace?'导入':'追加'} ${names.length} 名选手`, 'success');
             }
 
             function exportBackup() {
-                const data = {
-                    version: 2,
-                    exportedAt: new Date().toISOString(),
-                    participants: participants.map(p => ({
-                        id: p.id,
-                        name: p.name,
-                        status: p.status,
-                        score: p.score,
-                    })),
-                };
+                const data = { version: 2, exportedAt: new Date().toISOString(), participants: participants.map(p => ({ id: p
+                            .id, name: p.name, status: p.status, score: p.score })) };
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
+                a.href = URL.createObjectURL(blob);
                 a.download = `排行榜备份_${new Date().toISOString().slice(0,10)}.json`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showToast('💾 备份文件已下载', 'success');
+                showToast('备份已下载', 'success');
             }
 
-            function importBackupFromFile(file) {
+            function importBackupFile(file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = e => {
                     try {
                         const data = JSON.parse(e.target.result);
                         if (data.participants && Array.isArray(data.participants)) {
@@ -1137,185 +1063,96 @@
                                 id: item.id || generateId(),
                                 name: String(item.name || '').trim(),
                                 status: ['撤离成功', '撤离失败'].includes(item.status) ? item.status : '',
-                                score: (item.score !== null && item.score !== undefined && !isNaN(
-                                    Number(item.score))) ? Number(item.score) : null,
+                                score: (item.score !== null && item.score !== undefined && !isNaN(Number(item
+                                    .score))) ? Number(item.score) : null,
                             }));
                             saveData();
                             refreshDisplay();
-                            showToast(`📤 备份已恢复，共 ${participants.length} 名参赛者`, 'success');
-                        } else {
-                            showToast('⚠️ 备份文件格式不正确', 'warning');
-                        }
-                    } catch (err) {
-                        showToast('⚠️ 备份文件解析失败，请检查文件完整性', 'warning');
-                        console.error(err);
-                    }
+                            showToast(`备份已恢复，共 ${participants.length} 人`, 'success');
+                        } else showToast('备份格式不正确', 'warning');
+                    } catch (err) { showToast('备份解析失败', 'warning'); }
                 };
                 reader.readAsText(file);
             }
 
-            // ==================== Toast ====================
-            function showToast(message, type = 'info') {
+            function showToast(msg, type = 'info') {
                 const container = document.getElementById('toastContainer');
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
-                toast.textContent = message;
+                toast.textContent = msg;
                 container.appendChild(toast);
-                // 自动移除
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.remove();
-                    }
-                }, 2500);
+                setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2500);
             }
 
-            // ==================== 初始化与全局事件 ====================
             function init() {
                 loadData();
-                renderTable();
+                renderAllGroups();
 
-                // 导入名单按钮
                 document.getElementById('btnImport').addEventListener('click', () => {
                     const text = document.getElementById('importTextInput').value.trim();
-                    if (!text) {
-                        showToast('⚠️ 请先在输入框中粘贴参赛名单', 'warning');
-                        return;
-                    }
+                    if (!text) return showToast('请粘贴名单', 'warning');
                     const names = parseNameList(text);
-                    if (names.length === 0) {
-                        showToast('⚠️ 未识别到有效姓名，请检查格式（每行一个姓名或逗号分隔）', 'warning');
-                        return;
-                    }
-                    if (participants.length > 0 && !confirm(
-                            `当前已有 ${participants.length} 名参赛者，导入将【替换】所有数据。\n\n确定继续吗？`
-                            )) {
-                        return;
-                    }
+                    if (names.length === 0) return showToast('未识别到姓名', 'warning');
+                    if (participants.length > 0 && !confirm('导入将替换现有数据，确定吗？')) return;
                     importNames(names, true);
                     document.getElementById('importTextInput').value = '';
                 });
-
-                // 追加导入按钮
                 document.getElementById('btnAppendImport').addEventListener('click', () => {
                     const text = document.getElementById('importTextInput').value.trim();
-                    if (!text) {
-                        showToast('⚠️ 请先在输入框中粘贴参赛名单', 'warning');
-                        return;
-                    }
+                    if (!text) return showToast('请粘贴名单', 'warning');
                     const names = parseNameList(text);
-                    if (names.length === 0) {
-                        showToast('⚠️ 未识别到有效姓名', 'warning');
-                        return;
-                    }
+                    if (names.length === 0) return showToast('未识别到姓名', 'warning');
                     importNames(names, false);
                     document.getElementById('importTextInput').value = '';
                 });
-
-                // 文件导入
                 document.getElementById('fileInput').addEventListener('change', function() {
-                    if (!this.files || this.files.length === 0) return;
-                    const file = this.files[0];
+                    if (!this.files[0]) return;
                     const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const text = e.target.result;
-                        const names = parseNameList(text);
-                        if (names.length === 0) {
-                            showToast('⚠️ 文件中未识别到有效姓名', 'warning');
-                            return;
-                        }
-                        if (participants.length > 0 && !confirm(
-                                `当前已有 ${participants.length} 名参赛者，导入将【替换】所有数据。\n\n确定继续吗？`
-                                )) {
-                            return;
-                        }
+                    reader.onload = e => {
+                        const names = parseNameList(e.target.result);
+                        if (names.length === 0) return showToast('文件中无有效姓名', 'warning');
+                        if (participants.length > 0 && !confirm('导入将替换现有数据，确定吗？')) return;
                         importNames(names, true);
                     };
-                    reader.readAsText(file);
-                    // 清空file input以便重新选择同一文件
+                    reader.readAsText(this.files[0]);
                     this.value = '';
                 });
-
-                // 添加单个选手
                 document.getElementById('btnAddOne').addEventListener('click', () => {
-                    const name = prompt('请输入参赛者姓名：');
+                    const name = prompt('参赛者姓名：');
                     if (name && name.trim()) {
-                        participants.push({
-                            id: generateId(),
-                            name: name.trim(),
-                            status: '',
-                            score: null,
-                        });
+                        participants.push({ id: generateId(), name: name.trim(), status: '', score: null });
                         saveData();
                         refreshDisplay();
-                        showToast(`✅ 已添加「${name.trim()}」`, 'success');
+                        showToast(`已添加「${name.trim()}」`, 'success');
                     }
                 });
-
-                // 清空全部
                 document.getElementById('btnClearAll').addEventListener('click', () => {
-                    if (participants.length === 0) {
-                        showToast('📭 列表已为空，无需清空', 'info');
-                        return;
-                    }
-                    if (confirm(
-                            `⚠️ 确定要清空全部 ${participants.length} 名参赛者数据吗？\n\n此操作不可撤销！建议先导出备份。\n\n点击「确定」继续清空，点击「取消」保留数据。`
-                            )) {
+                    if (participants.length === 0) return showToast('列表已空', 'info');
+                    if (confirm(`清空全部 ${participants.length} 名选手数据？不可恢复！`)) {
                         participants = [];
                         saveData();
                         refreshDisplay();
-                        showToast('🗑 所有数据已清空', 'warning');
+                        showToast('已清空', 'warning');
                     }
                 });
-
-                // 导出备份
                 document.getElementById('btnExport').addEventListener('click', () => {
-                    if (participants.length === 0) {
-                        showToast('📭 没有数据可以导出', 'info');
-                        return;
-                    }
+                    if (participants.length === 0) return showToast('无数据可导出', 'info');
                     exportBackup();
                 });
-
-                // 恢复备份
                 document.getElementById('backupFileInput').addEventListener('change', function() {
-                    if (!this.files || this.files.length === 0) return;
-                    const file = this.files[0];
-                    if (participants.length > 0 && !confirm(
-                            `当前已有 ${participants.length} 名参赛者，恢复备份将【覆盖】所有数据。\n\n确定继续吗？`
-                            )) {
-                        this.value = '';
-                        return;
-                    }
-                    importBackupFromFile(file);
+                    if (!this.files[0]) return;
+                    if (participants.length > 0 && !confirm('恢复将覆盖现有数据，确定吗？')) { this.value = ''; return; }
+                    importBackupFile(this.files[0]);
                     this.value = '';
                 });
-
-                // 在导入文本框按回车快速导入
-                document.getElementById('importTextInput').addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        document.getElementById('btnImport').click();
-                    }
+                document.getElementById('importTextInput').addEventListener('keydown', e => {
+                    if (e.key === 'Enter') { e.preventDefault();
+                        document.getElementById('btnImport').click(); }
                 });
-
-                // 页面关闭前确保保存（实际上已经是实时保存了，但再加一层保障）
-                window.addEventListener('beforeunload', () => {
-                    saveData();
-                });
-
-                // 定期自动保存（额外的安全保障）
-                setInterval(() => {
-                    saveData();
-                }, 5000);
-
-                console.log('🏆 排行榜系统已就绪');
-                console.log('   - 在「撤离状态」列输入 1 → 自动填写「撤离成功」');
-                console.log('   - 在「撤离状态」列输入 2 → 自动填写「撤离失败」');
-                console.log('   - 所有数据自动保存到浏览器本地存储');
-                console.log('   - 当前参赛人数：' + participants.length);
+                window.addEventListener('beforeunload', saveData);
+                setInterval(saveData, 5000);
             }
 
-            // 启动应用
             init();
         })();
     </script>
