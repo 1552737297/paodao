@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 竞赛排行榜</title>
+    <style>
+        :root {
+            --bg: #0f0f1a;
+            --surface: #1a1a2e;
+            --surface2: #222240;
+            --gold: #f0c060;
+            --gold-light: #ffe9b0;
+            --silver: #bcc6d0;
+            --silver-light: #e0e5ea;
+            --bronze: #d4a574;
+            --bronze-light: #f5d5b8;
+            --success: #4caf84;
+            --success-bg: #1a3a2a;
+            --danger: #e0556a;
+            --danger-bg: #3a1a22;
+            --text: #e0e0e8;
+            --text-secondary: #a0a0b8;
+            --border: #333358;
+            --accent: #6c8cff;
+            --accent-hover: #8aa4ff;
+            --radius: 10px;
+            --radius-sm: 6px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --transition: 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(100, 120, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(240, 180, 80, 0.05) 0%, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 30px 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-top: 10px;
+        }
+
+        /* 头部 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .header .title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header .icon-trophy {
+            font-size: 2.4rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            70% {
+                transform: translateY(-6px);
+            }
+            85% {
+                transform: translateY(0);
+            }
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #f0c060, #ffe9b0, #f0c060);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header .badge {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .header .badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf84;
+            animation: pulse-dot 1.8s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(76, 175, 132, 0.6);
+            }
+            50% {
+                opacity: 0.5;
+                box-shadow: 0 0 0 8px rgba(76, 175, 132, 0);
+            }
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+            padding: 16px;
+            background: var(--surface2);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+        .toolbar .section-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-right: 4px;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+        .toolbar input[type="text"],
+        .toolbar input[type="file"] {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 9px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            outline: none;
+            font-family: inherit;
+        }
+        .toolbar input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(108, 140, 255, 0.1);
+        }
+        .toolbar input[type="text"] {
+            flex: 1;
+            min-width: 180px;
+            max-width: 350px;
+        }
+        .toolbar input[type="file"] {
+            display: none;
+        }
+        .btn {
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: var(--transition);
+            white-space: nowrap;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 0 16px rgba(108, 140, 255, 0.3);
+        }
+        .btn-outline {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover {
+            background: var(--surface2);
+            border-color: #555;
+        }
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+            border-color: var(--success);
+        }
+        .btn-success:hover {
+            background: #5cc498;
+            box-shadow: 0 0 14px rgba(76, 175, 132, 0.3);
+        }
+        .btn-danger {
+            background: transparent;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        .btn-danger:hover {
+            background: var(--danger-bg);
+            box-shadow: 0 0 14px rgba(224, 85, 106, 0.25);
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            border-radius: 4px;
+        }
+        .btn-xs {
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            border-radius: 3px;
+            letter-spacing: 0;
+        }
+        .divider-dot {
+            color: var(--border);
+            font-weight: bold;
+            margin: 0 2px;
+            user-select: none;
+        }
+
+        /* 统计条 */
+        .stats-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding: 12px 16px;
+            background: var(--surface2);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            align-items: center;
+        }
+        .stats-bar .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .stats-bar .stat-value {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        .stats-bar .stat-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        .stat-dot.success-dot {
+            background: var(--success);
+        }
+        .stat-dot.danger-dot {
+            background: var(--danger);
+        }
+        .stat-dot.pending-dot {
+            background: #888;
+        }
+
+        /* 表格容器 */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            max-height: 65vh;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+        .table-wrapper::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .table-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 3px;
+        }
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+            table-layout: auto;
+        }
+        table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        table thead th {
+            background: #1e1e3a;
+            padding: 13px 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+            user-select: none;
+        }
+        table tbody tr {
+            transition: background 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        table tbody tr.row-gold {
+            background: rgba(240, 192, 96, 0.08);
+        }
+        table tbody tr.row-gold:hover {
+            background: rgba(240, 192, 96, 0.14);
+        }
+        table tbody tr.row-silver {
+            background: rgba(188, 198, 208, 0.05);
+        }
+        table tbody tr.row-silver:hover {
+            background: rgba(188, 198, 208, 0.1);
+        }
+        table tbody tr.row-bronze {
+            background: rgba(212, 165, 116, 0.05);
+        }
+        table tbody tr.row-bronze:hover {
+            background: rgba(212, 165, 116, 0.1);
+        }
+        table tbody td {
+            padding: 8px 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        /* 排名列 */
+        .rank-cell {
+            font-weight: 700;
+            font-size: 1rem;
+            min-width: 55px;
+        }
+        .rank-medal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+        .rank-gold {
+            background: linear-gradient(135deg, #f0c060, #d4a030);
+            color: #3d2200;
+            box-shadow: 0 0 16px rgba(240, 192, 96, 0.5);
+        }
+        .rank-silver {
+            background: linear-gradient(135deg, #d8dce3, #a8b0ba);
+            color: #2a2a30;
+            box-shadow: 0 0 12px rgba(188, 198, 208, 0.4);
+        }
+        .rank-bronze {
+            background: linear-gradient(135deg, #e0b890, #b88050);
+            color: #3d1f00;
+            box-shadow: 0 0 10px rgba(212, 165, 116, 0.4);
+        }
+        .rank-normal {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        .rank-na {
+            color: #555;
+            font-size: 0.8rem;
+        }
+
+        /* 输入框样式 */
+        input.table-input {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 7px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            width: 100%;
+            max-width: 130px;
+            text-align: center;
+            transition: var(--transition);
+            outline: none;
+            font-family: inherit;
+            min-width: 80px;
+        }
+        input.table-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(108, 140, 255, 0.12);
+            background: #1c1c35;
+        }
+        input.status-input {
+            max-width: 120px;
+            min-width: 90px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: all 0.25s ease;
+        }
+        input.status-input.status-success {
+            border-color: var(--success);
+            background: var(--success-bg);
+            color: #7ee8b8;
+            box-shadow: 0 0 8px rgba(76, 175, 132, 0.2);
+        }
+        input.status-input.status-danger {
+            border-color: var(--danger);
+            background: var(--danger-bg);
+            color: #f0909e;
+            box-shadow: 0 0 8px rgba(224, 85, 106, 0.2);
+        }
+        input.score-input {
+            max-width: 100px;
+            min-width: 70px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            letter-spacing: 0.5px;
+        }
+        input.name-input {
+            max-width: 150px;
+            min-width: 100px;
+            text-align: left;
+            padding-left: 12px;
+        }
+
+        /* 删除按钮 */
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: var(--transition);
+            line-height: 1;
+        }
+        .delete-btn:hover {
+            color: #e0556a;
+            background: rgba(224, 85, 106, 0.15);
+        }
+
+        /* Toast 提示 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.35s ease-out, fadeOut 0.35s ease-in forwards;
+            animation-delay: 0s, 2s;
+            pointer-events: auto;
+            max-width: 350px;
+        }
+        .toast.success {
+            border-left: 3px solid var(--success);
+        }
+        .toast.info {
+            border-left: 3px solid var(--accent);
+        }
+        .toast.warning {
+            border-left: 3px solid #f0a040;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px 12px;
+                border-radius: 14px;
+            }
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .toolbar input[type="text"] {
+                max-width: 100%;
+                min-width: auto;
+            }
+            .btn {
+                justify-content: center;
+            }
+            table {
+                min-width: 600px;
+            }
+            input.table-input {
+                max-width: 90px;
+                font-size: 0.8rem;
+                padding: 5px 6px;
+            }
+            input.status-input {
+                max-width: 85px;
+                min-width: 70px;
+            }
+            input.score-input {
+                max-width: 70px;
+                min-width: 55px;
+            }
+            input.name-input {
+                max-width: 100px;
+                min-width: 70px;
+            }
+            .stats-bar {
+                font-size: 0.75rem;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="title-group">
+                <span class="icon-trophy">🏆</span>
+                <h1>竞赛排行榜</h1>
+            </div>
+            <div class="badge">
+                <span class="dot"></span> 数据自动保存中
+            </div>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="toolbar" id="toolbar">
+            <span class="section-label">📋 导入名单</span>
+            <input type="text" id="importTextInput"
+            placeholder="粘贴名单（每行一个姓名，或用逗号分隔）"
+            title="粘贴参赛者姓名，每行一个或逗号分隔">
+            <button class="btn btn-primary" id="btnImport" title="导入并替换当前名单">
+                📥 导入名单
+            </button>
+            <button class="btn btn-outline" id="btnAppendImport" title="追加到现有名单末尾">
+                ➕ 追加导入
+            </button>
+            <span class="divider-dot">•</span>
+            <label class="btn btn-outline" for="fileInput" title="从TXT或CSV文件导入名单">
+                📁 从文件导入
+            </label>
+            <input type="file" id="fileInput" accept=".txt,.csv">
+            <span class="divider-dot">•</span>
+            <button class="btn btn-success" id="btnAddOne" title="手动添加一个参赛者">
+                ＋ 添加选手
+            </button>
+            <button class="btn btn-danger" id="btnClearAll" title="清空所有数据（不可恢复）">
+                🗑 清空全部
+            </button>
+            <button class="btn btn-outline btn-sm" id="btnExport" title="导出数据为JSON备份文件">
+                💾 导出备份
+            </button>
+            <button class="btn btn-outline btn-sm" id="btnImportBackup" title="从JSON备份文件恢复数据"
+            onclick="document.getElementById('backupFileInput').click()">
+                📤 恢复备份
+            </button>
+            <input type="file" id="backupFileInput" accept=".json" style="display:none;">
+        </div>
+
+        <!-- 统计条 -->
+        <div class="stats-bar" id="statsBar">
+            <span class="stat-item">📊 总人数：<span class="stat-value" id="statTotal">0</span></span>
+            <span class="stat-item"><span class="stat-dot success-dot"></span> 撤离成功：<span class="stat-value" id="statSuccess">0</span></span>
+            <span class="stat-item"><span class="stat-dot danger-dot"></span> 撤离失败：<span class="stat-value" id="statFail">0</span></span>
+            <span class="stat-item"><span class="stat-dot pending-dot"></span> 未标记：<span class="stat-value" id="statPending">0</span></span>
+            <span class="stat-item">📈 已填成绩：<span class="stat-value" id="statScored">0</span></span>
+            <span class="stat-item">⭐ 最高分：<span class="stat-value" id="statBest">-</span></span>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-wrapper" id="tableWrapper">
+            <table id="rankingTable">
+                <thead>
+                    <tr>
+                        <th style="width:65px;">排名</th>
+                        <th style="width:130px;">👤 姓名</th>
+                        <th style="width:130px;">🚁 撤离状态</th>
+                        <th style="width:100px;">🎯 成绩</th>
+                        <th style="width:50px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 动态渲染 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        (function() {
+            // ==================== 数据管理 ====================
+            const STORAGE_KEY = 'ranking_board_data_v2';
+
+            /**
+             * 数据结构：
+             * {
+             *   id: string (唯一标识),
+             *   name: string (参赛者姓名),
+             *   status: string ('撤离成功' | '撤离失败' | ''),
+             *   score: number | null
+             * }
+             */
+            let participants = [];
+
+            /** 加载数据 */
+            function loadData() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        if (Array.isArray(data)) {
+                            // 数据迁移/校验
+                            participants = data.map(item => ({
+                                id: item.id || generateId(),
+                                name: String(item.name || '').trim(),
+                                status: ['撤离成功', '撤离失败'].includes(item.status) ? item.status : '',
+                                score: (item.score !== null && item.score !== undefined && !isNaN(
+                                    Number(item.score))) ? Number(item.score) : null,
+                            }));
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('数据加载失败，将使用空数据', e);
+                }
+                participants = [];
+            }
+
+            /** 保存数据 */
+            function saveData() {
+                try {
+                    const dataToSave = participants.map(p => ({
+                        id: p.id,
+                        name: p.name,
+                        status: p.status,
+                        score: p.score,
+                    }));
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+                } catch (e) {
+                    showToast('⚠️ 自动保存失败，请检查浏览器存储空间', 'warning');
+                    console.error('保存失败', e);
+                }
+            }
+
+            /** 生成唯一ID */
+            function generateId() {
+                return 'p_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+            }
+
+            // ==================== 排序与排名 ====================
+            function getSortedParticipants() {
+                const sorted = [...participants].sort((a, b) => {
+                    // 都有成绩：按成绩降序
+                    const scoreA = a.score;
+                    const scoreB = b.score;
+                    const hasA = scoreA !== null && scoreA !== undefined && !isNaN(scoreA);
+                    const hasB = scoreB !== null && scoreB !== undefined && !isNaN(scoreB);
+
+                    if (hasA && hasB) {
+                        if (scoreB !== scoreA) return scoreB - scoreA;
+                        // 成绩相同：撤离成功优先
+                        const statusOrder = { '撤离成功': 0, '': 1, '撤离失败': 2 };
+                        const orderA = statusOrder[a.status] ?? 1;
+                        const orderB = statusOrder[b.status] ?? 1;
+                        if (orderA !== orderB) return orderA - orderB;
+                        // 按姓名
+                        return a.name.localeCompare(b.name, 'zh-CN');
+                    }
+                    if (hasA && !hasB) return -1;
+                    if (!hasA && hasB) return 1;
+                    // 都没成绩：按姓名
+                    return a.name.localeCompare(b.name, 'zh-CN');
+                });
+                return sorted;
+            }
+
+            function computeRanks(sortedList) {
+                const ranks = [];
+                let currentRank = 1;
+                for (let i = 0; i < sortedList.length; i++) {
+                    const p = sortedList[i];
+                    const hasScore = p.score !== null && p.score !== undefined && !isNaN(p.score);
+                    if (!hasScore) {
+                        ranks.push({ ...p, rank: null, rankDisplay: '-' });
+                        continue;
+                    }
+                    if (i === 0) {
+                        ranks.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
+                        continue;
+                    }
+                    const prev = sortedList[i - 1];
+                    const prevHasScore = prev.score !== null && prev.score !== undefined && !isNaN(prev.score);
+                    if (!prevHasScore) {
+                        currentRank = i + 1;
+                        ranks.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
+                        continue;
+                    }
+                    if (p.score === prev.score && p.status === prev.status) {
+                        // 并列
+                        ranks.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
+                    } else {
+                        currentRank = i + 1;
+                        ranks.push({ ...p, rank: currentRank, rankDisplay: String(currentRank) });
+                    }
+                }
+                return ranks;
+            }
+
+            // ==================== 渲染 ====================
+            function getRankClass(rank) {
+                if (rank === 1) return 'rank-gold';
+                if (rank === 2) return 'rank-silver';
+                if (rank === 3) return 'rank-bronze';
+                return 'rank-normal';
+            }
+
+            function getRowClass(rank) {
+                if (rank === 1) return 'row-gold';
+                if (rank === 2) return 'row-silver';
+                if (rank === 3) return 'row-bronze';
+                return '';
+            }
+
+            function renderTable() {
+                const sorted = getSortedParticipants();
+                const ranked = computeRanks(sorted);
+                const tbody = document.getElementById('tableBody');
+
+                let html = '';
+                ranked.forEach((p) => {
+                    const rankClass = p.rank ? getRankClass(p.rank) : 'rank-na';
+                    const rowClass = p.rank ? getRowClass(p.rank) : '';
+                    const medalHtml = p.rank && p.rank <= 3 ?
+                        `<span class="rank-medal ${rankClass}">${['🥇','🥈','🥉'][p.rank-1]}</span>` :
+                        (p.rank ? `<span class="rank-normal">#${p.rank}</span>` :
+                            `<span class="rank-na">-</span>`);
+
+                    const statusClass = p.status === '撤离成功' ? 'status-success' :
+                        p.status === '撤离失败' ? 'status-danger' : '';
+                    const statusValue = p.status || '';
+
+                    const scoreValue = (p.score !== null && p.score !== undefined && !isNaN(p.score)) ? p
+                        .score : '';
+
+                    html += `
+                    <tr class="${rowClass}" data-id="${p.id}">
+                        <td class="rank-cell">${medalHtml}</td>
+                        <td>
+                            <input type="text" class="table-input name-input name-field"
+                                   value="${escapeAttr(p.name)}"
+                                   data-id="${p.id}"
+                                   placeholder="姓名"
+                                   autocomplete="off">
+                        </td>
+                        <td>
+                            <input type="text" class="table-input status-input status-field ${statusClass}"
+                                   value="${escapeAttr(statusValue)}"
+                                   data-id="${p.id}"
+                                   placeholder="输入1或2"
+                                   autocomplete="off"
+                                   title="输入 1 = 撤离成功，输入 2 = 撤离失败">
+                        </td>
+                        <td>
+                            <input type="number" class="table-input score-input score-field"
+                                   value="${scoreValue}"
+                                   data-id="${p.id}"
+                                   placeholder="分数"
+                                   step="any"
+                                   autocomplete="off">
+                        </td>
+                        <td>
+                            <button class="delete-btn" data-id="${p.id}" title="删除此选手">✕</button>
+                        </td>
+                    </tr>`;
+                });
+
+                if (ranked.length === 0) {
+                    html = `
+                    <tr>
+                        <td colspan="5" style="padding:40px;color:#555;font-size:1rem;">
+                            📭 暂无参赛者，请导入名单或手动添加选手
+                        </td>
+                    </tr>`;
+                }
+
+                tbody.innerHTML = html;
+                updateStats(ranked);
+                bindTableEvents();
+            }
+
+            function escapeAttr(str) {
+                return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g,
+                    '&gt;');
+            }
+
+            function updateStats(ranked) {
+                const total = ranked.length;
+                const successCount = ranked.filter(p => p.status === '撤离成功').length;
+                const failCount = ranked.filter(p => p.status === '撤离失败').length;
+                const pendingCount = total - successCount - failCount;
+                const scoredCount = ranked.filter(p => p.score !== null && p.score !== undefined && !isNaN(p.score))
+                    .length;
+                const scoredList = ranked.filter(p => p.score !== null && p.score !== undefined && !isNaN(p.score));
+                let bestScore = '-';
+                if (scoredList.length > 0) {
+                    bestScore = Math.max(...scoredList.map(p => p.score));
+                    // 保留合理小数位
+                    if (Number.isInteger(bestScore)) {
+                        bestScore = String(bestScore);
+                    } else {
+                        bestScore = String(Math.round(bestScore * 100) / 100);
+                    }
+                }
+
+                document.getElementById('statTotal').textContent = total;
+                document.getElementById('statSuccess').textContent = successCount;
+                document.getElementById('statFail').textContent = failCount;
+                document.getElementById('statPending').textContent = pendingCount;
+                document.getElementById('statScored').textContent = scoredCount;
+                document.getElementById('statBest').textContent = bestScore;
+            }
+
+            // ==================== 事件绑定 ====================
+            function bindTableEvents() {
+                // 姓名输入
+                document.querySelectorAll('.name-field').forEach(input => {
+                    input.addEventListener('input', function() {
+                        const id = this.getAttribute('data-id');
+                        const p = participants.find(x => x.id === id);
+                        if (p) {
+                            p.name = this.value.trim();
+                            saveData();
+                        }
+                    });
+                    input.addEventListener('blur', function() {
+                        const id = this.getAttribute('data-id');
+                        const p = participants.find(x => x.id === id);
+                        if (p && p.name !== this.value.trim()) {
+                            p.name = this.value.trim();
+                            saveData();
+                            refreshDisplay();
+                        }
+                    });
+                });
+
+                // 撤离状态输入 - 智能识别1和2
+                document.querySelectorAll('.status-field').forEach(input => {
+                    input.addEventListener('input', function() {
+                        const id = this.getAttribute('data-id');
+                        const p = participants.find(x => x.id === id);
+                        if (!p) return;
+
+                        const rawValue = this.value;
+                        // 检测是否恰好输入了1或2
+                        if (rawValue === '1') {
+                            this.value = '撤离成功';
+                            p.status = '撤离成功';
+                            updateStatusInputStyle(this);
+                            saveData();
+                            refreshDisplay();
+                            return;
+                        }
+                        if (rawValue === '2') {
+                            this.value = '撤离失败';
+                            p.status = '撤离失败';
+                            updateStatusInputStyle(this);
+                            saveData();
+                            refreshDisplay();
+                            return;
+                        }
+                        // 其他情况直接保存
+                        p.status = rawValue.trim();
+                        updateStatusInputStyle(this);
+                        saveData();
+                    });
+                    input.addEventListener('blur', function() {
+                        const id = this.getAttribute('data-id');
+                        const p = participants.find(x => x.id === id);
+                        if (!p) return;
+                        const trimmed = this.value.trim();
+                        // 再次检查blur时的值
+                        if (trimmed === '1') {
+                            this.value = '撤离成功';
+                            p.status = '撤离成功';
+                        } else if (trimmed === '2') {
+                            this.value = '撤离失败';
+                            p.status = '撤离失败';
+                        } else {
+                            p.status = trimmed;
+                        }
+                        updateStatusInputStyle(this);
+                        saveData();
+                        refreshDisplay();
+                    });
+                    // 初始样式
+                    updateStatusInputStyle(input);
+                });
+
+                // 成绩输入
+                document.querySelectorAll('.score-field').forEach(input => {
+                    input.addEventListener('input', function() {
+                        const id = this.getAttribute('data-id');
+                        const p = participants.find(x => x.id === id);
+                        if (!p) return;
+                        const val = this.value.trim();
+                        if (val === '' || val === '-') {
+                            p.score = null;
+                        } else {
+                            const num = parseFloat(val);
+                            p.score = isNaN(num) ? null : num;
+                        }
+                        saveData();
+                    });
+                    input.addEventListener('blur', function() {
+                        const id = this.getAttribute('data-id');
+                        const p = participants.find(x => x.id === id);
+                        if (!p) return;
+                        const val = this.value.trim();
+                        if (val === '' || val === '-') {
+                            p.score = null;
+                            this.value = '';
+                        } else {
+                            const num = parseFloat(val);
+                            if (isNaN(num)) {
+                                p.score = null;
+                                this.value = '';
+                            } else {
+                                p.score = num;
+                                this.value = String(num);
+                            }
+                        }
+                        saveData();
+                        refreshDisplay();
+                    });
+                });
+
+                // 删除按钮
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        const p = participants.find(x => x.id === id);
+                        const name = p ? p.name : '未知';
+                        if (confirm(`确定要删除「${name}」吗？此操作不可撤销。`)) {
+                            participants = participants.filter(x => x.id !== id);
+                            saveData();
+                            refreshDisplay();
+                            showToast(`已删除「${name}」`, 'info');
+                        }
+                    });
+                });
+            }
+
+            function updateStatusInputStyle(input) {
+                const val = input.value.trim();
+                input.classList.remove('status-success', 'status-danger');
+                if (val === '撤离成功') {
+                    input.classList.add('status-success');
+                } else if (val === '撤离失败') {
+                    input.classList.add('status-danger');
+                }
+            }
+
+            function refreshDisplay() {
+                // 保存当前焦点元素信息
+                const activeEl = document.activeElement;
+                const activeId = activeEl ? activeEl.getAttribute('data-id') : null;
+                const activeClass = activeEl ? activeEl.className : '';
+
+                renderTable();
+
+                // 尝试恢复焦点
+                if (activeId) {
+                    setTimeout(() => {
+                        const target = document.querySelector(`[data-id="${activeId}"].${activeClass.split(' ').join('.')}`);
+                        if (target && target.tagName === 'INPUT') {
+                            target.focus();
+                            // 将光标移到末尾
+                            const len = target.value.length;
+                            target.setSelectionRange(len, len);
+                        }
+                    }, 50);
+                }
+            }
+
+            // ==================== 导入/导出 ====================
+            function parseNameList(text) {
+                // 先尝试按换行分割
+                let lines = text.split(/[\n\r]+/).map(s => s.trim()).filter(s => s.length > 0);
+                // 如果只有一行且包含逗号，尝试按逗号分割
+                if (lines.length <= 1 && text.includes(',')) {
+                    lines = text.split(/[,，]+/).map(s => s.trim()).filter(s => s.length > 0);
+                }
+                // 也支持中文逗号、顿号、分号、空格等分隔
+                if (lines.length <= 1 && /[，、；;｜|\t]/.test(text)) {
+                    lines = text.split(/[，、；;｜|\t]+/).map(s => s.trim()).filter(s => s.length > 0);
+                }
+                return lines;
+            }
+
+            function importNames(names, replace = true) {
+                if (names.length === 0) {
+                    showToast('⚠️ 未识别到有效姓名，请检查输入格式', 'warning');
+                    return;
+                }
+                if (replace) {
+                    participants = names.map(name => ({
+                        id: generateId(),
+                        name: name,
+                        status: '',
+                        score: null,
+                    }));
+                    showToast(`✅ 已导入 ${names.length} 名参赛者（替换原有名单）`, 'success');
+                } else {
+                    const newOnes = names.map(name => ({
+                        id: generateId(),
+                        name: name,
+                        status: '',
+                        score: null,
+                    }));
+                    participants = [...participants, ...newOnes];
+                    showToast(`✅ 已追加导入 ${names.length} 名参赛者`, 'success');
+                }
+                saveData();
+                refreshDisplay();
+            }
+
+            function exportBackup() {
+                const data = {
+                    version: 2,
+                    exportedAt: new Date().toISOString(),
+                    participants: participants.map(p => ({
+                        id: p.id,
+                        name: p.name,
+                        status: p.status,
+                        score: p.score,
+                    })),
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `排行榜备份_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('💾 备份文件已下载', 'success');
+            }
+
+            function importBackupFromFile(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.participants && Array.isArray(data.participants)) {
+                            participants = data.participants.map(item => ({
+                                id: item.id || generateId(),
+                                name: String(item.name || '').trim(),
+                                status: ['撤离成功', '撤离失败'].includes(item.status) ? item.status : '',
+                                score: (item.score !== null && item.score !== undefined && !isNaN(
+                                    Number(item.score))) ? Number(item.score) : null,
+                            }));
+                            saveData();
+                            refreshDisplay();
+                            showToast(`📤 备份已恢复，共 ${participants.length} 名参赛者`, 'success');
+                        } else {
+                            showToast('⚠️ 备份文件格式不正确', 'warning');
+                        }
+                    } catch (err) {
+                        showToast('⚠️ 备份文件解析失败，请检查文件完整性', 'warning');
+                        console.error(err);
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            // ==================== Toast ====================
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                container.appendChild(toast);
+                // 自动移除
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 2500);
+            }
+
+            // ==================== 初始化与全局事件 ====================
+            function init() {
+                loadData();
+                renderTable();
+
+                // 导入名单按钮
+                document.getElementById('btnImport').addEventListener('click', () => {
+                    const text = document.getElementById('importTextInput').value.trim();
+                    if (!text) {
+                        showToast('⚠️ 请先在输入框中粘贴参赛名单', 'warning');
+                        return;
+                    }
+                    const names = parseNameList(text);
+                    if (names.length === 0) {
+                        showToast('⚠️ 未识别到有效姓名，请检查格式（每行一个姓名或逗号分隔）', 'warning');
+                        return;
+                    }
+                    if (participants.length > 0 && !confirm(
+                            `当前已有 ${participants.length} 名参赛者，导入将【替换】所有数据。\n\n确定继续吗？`
+                            )) {
+                        return;
+                    }
+                    importNames(names, true);
+                    document.getElementById('importTextInput').value = '';
+                });
+
+                // 追加导入按钮
+                document.getElementById('btnAppendImport').addEventListener('click', () => {
+                    const text = document.getElementById('importTextInput').value.trim();
+                    if (!text) {
+                        showToast('⚠️ 请先在输入框中粘贴参赛名单', 'warning');
+                        return;
+                    }
+                    const names = parseNameList(text);
+                    if (names.length === 0) {
+                        showToast('⚠️ 未识别到有效姓名', 'warning');
+                        return;
+                    }
+                    importNames(names, false);
+                    document.getElementById('importTextInput').value = '';
+                });
+
+                // 文件导入
+                document.getElementById('fileInput').addEventListener('change', function() {
+                    if (!this.files || this.files.length === 0) return;
+                    const file = this.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const text = e.target.result;
+                        const names = parseNameList(text);
+                        if (names.length === 0) {
+                            showToast('⚠️ 文件中未识别到有效姓名', 'warning');
+                            return;
+                        }
+                        if (participants.length > 0 && !confirm(
+                                `当前已有 ${participants.length} 名参赛者，导入将【替换】所有数据。\n\n确定继续吗？`
+                                )) {
+                            return;
+                        }
+                        importNames(names, true);
+                    };
+                    reader.readAsText(file);
+                    // 清空file input以便重新选择同一文件
+                    this.value = '';
+                });
+
+                // 添加单个选手
+                document.getElementById('btnAddOne').addEventListener('click', () => {
+                    const name = prompt('请输入参赛者姓名：');
+                    if (name && name.trim()) {
+                        participants.push({
+                            id: generateId(),
+                            name: name.trim(),
+                            status: '',
+                            score: null,
+                        });
+                        saveData();
+                        refreshDisplay();
+                        showToast(`✅ 已添加「${name.trim()}」`, 'success');
+                    }
+                });
+
+                // 清空全部
+                document.getElementById('btnClearAll').addEventListener('click', () => {
+                    if (participants.length === 0) {
+                        showToast('📭 列表已为空，无需清空', 'info');
+                        return;
+                    }
+                    if (confirm(
+                            `⚠️ 确定要清空全部 ${participants.length} 名参赛者数据吗？\n\n此操作不可撤销！建议先导出备份。\n\n点击「确定」继续清空，点击「取消」保留数据。`
+                            )) {
+                        participants = [];
+                        saveData();
+                        refreshDisplay();
+                        showToast('🗑 所有数据已清空', 'warning');
+                    }
+                });
+
+                // 导出备份
+                document.getElementById('btnExport').addEventListener('click', () => {
+                    if (participants.length === 0) {
+                        showToast('📭 没有数据可以导出', 'info');
+                        return;
+                    }
+                    exportBackup();
+                });
+
+                // 恢复备份
+                document.getElementById('backupFileInput').addEventListener('change', function() {
+                    if (!this.files || this.files.length === 0) return;
+                    const file = this.files[0];
+                    if (participants.length > 0 && !confirm(
+                            `当前已有 ${participants.length} 名参赛者，恢复备份将【覆盖】所有数据。\n\n确定继续吗？`
+                            )) {
+                        this.value = '';
+                        return;
+                    }
+                    importBackupFromFile(file);
+                    this.value = '';
+                });
+
+                // 在导入文本框按回车快速导入
+                document.getElementById('importTextInput').addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        document.getElementById('btnImport').click();
+                    }
+                });
+
+                // 页面关闭前确保保存（实际上已经是实时保存了，但再加一层保障）
+                window.addEventListener('beforeunload', () => {
+                    saveData();
+                });
+
+                // 定期自动保存（额外的安全保障）
+                setInterval(() => {
+                    saveData();
+                }, 5000);
+
+                console.log('🏆 排行榜系统已就绪');
+                console.log('   - 在「撤离状态」列输入 1 → 自动填写「撤离成功」');
+                console.log('   - 在「撤离状态」列输入 2 → 自动填写「撤离失败」');
+                console.log('   - 所有数据自动保存到浏览器本地存储');
+                console.log('   - 当前参赛人数：' + participants.length);
+            }
+
+            // 启动应用
+            init();
+        })();
+    </script>
+</body>
+</html>
